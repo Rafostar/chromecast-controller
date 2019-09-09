@@ -3,6 +3,14 @@ const scanner = require('multicast-scanner');
 const debug = require('debug')('chromecast-controller');
 const noop = () => {};
 
+const defaults =
+{
+	ttl: 22000,
+	interval: 4000,
+	name: null,
+	autoplay: true
+}
+
 var controller =
 {
 	cast: function(media, opts, cb)
@@ -12,8 +20,7 @@ var controller =
 		if(typeof opts === 'function') cb = opts;
 		else opts = opts || {};
 
-		opts.autoplay = (opts.autoplay === true
-			|| opts.autoplay === false) ? opts.autoplay : true;
+		opts = { ...defaults, ...opts };
 
 		if(isActive())
 		{
