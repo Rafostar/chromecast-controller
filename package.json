@@ -1,0 +1,31 @@
+{
+  "name": "chromecast-controller",
+  "version": "0.0.0",
+  "description": "Easily cast to Chromecast and control playback",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rafostar/chromecast-controller.git"
+  },
+  "keywords": [
+    "chromecast",
+    "cast",
+    "media",
+    "controller"
+  ],
+  "author": "Rafostar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Rafostar/chromecast-controller/issues"
+  },
+  "homepage": "https://github.com/Rafostar/chromecast-controller#readme",
+  "dependencies": {
+    "castv2": "0.1.8",
+    "castv2-client": "^1.2.0",
+    "debug": "^4.1.1",
+    "multicast-scanner": "^2.2.1"
+  }
+}
