@@ -8,6 +8,7 @@ const defaults =
 	ttl: 22000,
 	interval: 4000,
 	name: null,
+	ip: null,
 	autoplay: true
 }
 
@@ -138,46 +139,58 @@ var controller =
 
 function launch(media, opts, cb)
 {
+	var selectPlay = () =>
+	{
+		if(opts.ip) _connectAndPlay(media, opts, cb);
+		else _scanAndPlay(media, opts, cb);
+	}
+
 	if(controller._client)
 	{
 		closeClient((err) =>
 		{
 			if(err) cb(err);
-			else _scanAndPlay(media, opts, cb);
+			else selectPlay();
 		});
 	}
 	else
 	{
-		_scanAndPlay(media, opts, cb);
+		selectPlay();
 	}
 }
 
 function _scanAndPlay(media, opts, cb)
 {
-	scanner({...opts, ...{ full_scan: false }}, (err, device) =>
+	scanner({ ...opts, ...{ full_scan: false }}, (err, device) =>
 	{
 		if(err) return cb(err);
 
-		controller._client = new Client();
+		opts.ip = device.ip;
+		_connectAndPlay(media, opts, cb);
+	});
+}
 
-		controller._client.connect(device.ip, (err) =>
+function _connectAndPlay(media, opts, cb)
+{
+	controller._client = new Client();
+
+	controller._client.connect(opts.ip, (err) =>
+	{
+		if(err) return cb(err);
+
+		controller._client.launch(DefaultMediaReceiver, (err, player) =>
 		{
 			if(err) return cb(err);
 
-			controller._client.launch(DefaultMediaReceiver, (err, player) =>
-			{
-				if(err) return cb(err);
+			controller._player = player;
 
-				controller._player = player;
-
-				if(!media) cb(new Error('No media provided!'));
-				else if (typeof media !== 'object') cb(new Error('Invalid media object!'));
-				else controller.cast(media, opts, cb);
-			});
+			if(!media) cb(new Error('No media provided!'));
+			else if (typeof media !== 'object') cb(new Error('Invalid media object!'));
+			else controller.cast(media, opts, cb);
 		});
-
-		controller._client.on('error', onError);
 	});
+
+	controller._client.on('error', onError);
 }
 
 function closeClient(cb)
