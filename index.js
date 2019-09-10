@@ -35,7 +35,7 @@ var controller =
 					launch(media, opts, cb);
 				}
 				else
-					cb(null);
+					cb(err, status);
 			});
 		}
 		else
@@ -94,7 +94,8 @@ var controller =
 				debug(`Could not get volume: ${err.message}`);
 				cb(err);
 			}
-			else cb(status.level);
+			else
+				cb(status.level);
 		});
 	},
 
@@ -117,8 +118,16 @@ var controller =
 				debug(`Could not get mute status: ${err.message}`);
 				cb(err);
 			}
-			else cb(status.muted);
+			else
+				cb(status.muted);
 		});
+	},
+
+	getStatus: function(cb)
+	{
+		cb = cb || noop;
+
+		this._player.getStatus(cb);
 	},
 
 	close: function(cb)
@@ -201,11 +210,17 @@ function closeClient(cb)
 
 	controller._client.removeListener('error', onError);
 
+	var close = () =>
+	{
+		controller._client.close();
+		debug('Closed client');
+	}
+
 	if(isActive())
 	{
 		controller._client.stop(controller._player, (err) =>
 		{
-			controller._client.close();
+			close();
 
 			if(err) cb(err);
 			else cb(null);
@@ -213,7 +228,8 @@ function closeClient(cb)
 	}
 	else
 	{
-		controller._client.close();
+		close();
+
 		cb(null);
 	}
 }
