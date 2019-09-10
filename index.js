@@ -9,7 +9,8 @@ const defaults =
 	interval: 4000,
 	name: null,
 	ip: null,
-	autoplay: true
+	autoplay: true,
+	retry: true
 }
 
 var controller =
@@ -23,25 +24,7 @@ var controller =
 
 		opts = { ...defaults, ...opts };
 
-		if(isActive())
-		{
-			this._player.load(media, opts, (err, status) =>
-			{
-				if(err)
-				{
-					debug(`Could not load media: ${err.message}`);
-					debug(`Could not append to session! Restarting connection...`);
-
-					launch(media, opts, cb);
-				}
-				else
-					cb(err, status);
-			});
-		}
-		else
-		{
-			launch(media, opts, cb);
-		}
+		startCast(media, opts, cb);
 	},
 
 	play: function(cb)
@@ -146,7 +129,35 @@ var controller =
 	_client: null
 }
 
-function launch(media, opts, cb)
+function startCast(media, opts, cb)
+{
+	if(isActive())
+	{
+		this._player.load(media, opts, (err, status) =>
+		{
+			if(err)
+			{
+				debug(`Could not load media: ${err.message}`);
+
+				if(opts.retry)
+				{
+					debug('Retrying...');
+
+					opts.retry = false;
+					return _launch(media, opts, cb);
+				}
+			}
+
+			cb(err, status);
+		});
+	}
+	else
+	{
+		_launch(media, opts, cb);
+	}
+}
+
+function _launch(media, opts, cb)
 {
 	var selectPlay = () =>
 	{
@@ -195,7 +206,7 @@ function _connectAndPlay(media, opts, cb)
 
 			if(!media) cb(new Error('No media provided!'));
 			else if (typeof media !== 'object') cb(new Error('Invalid media object!'));
-			else controller.cast(media, opts, cb);
+			else startCast(media, opts, cb);
 		});
 	});
 
