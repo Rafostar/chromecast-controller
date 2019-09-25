@@ -131,9 +131,9 @@ var controller =
 
 function startCast(media, opts, cb)
 {
-	if(isActive())
+	if(getIsActive())
 	{
-		this._player.load(media, opts, (err, status) =>
+		controller._player.load(media, opts, (err, status) =>
 		{
 			if(err)
 			{
@@ -201,12 +201,18 @@ function _connectAndPlay(media, opts, cb)
 		controller._client.launch(DefaultMediaReceiver, (err, player) =>
 		{
 			if(err) return cb(err);
+			else
+			{
+				controller._player = player;
+				controller._player.on('close', onClose);
 
-			controller._player = player;
-
-			if(!media) cb(new Error('No media provided!'));
-			else if (typeof media !== 'object') cb(new Error('Invalid media object!'));
-			else startCast(media, opts, cb);
+				if(!media)
+					cb(new Error('No media provided!'));
+				else if(typeof media !== 'object')
+					cb(new Error('Invalid media object!'));
+				else
+					startCast(media, opts, cb);
+			}
 		});
 	});
 
@@ -221,13 +227,16 @@ function closeClient(cb)
 
 	controller._client.removeListener('error', onError);
 
+	if(controller._player)
+		controller._player.removeListener('close', onClose);
+
 	var close = () =>
 	{
 		controller._client.close();
 		debug('Closed client');
 	}
 
-	if(isActive())
+	if(getIsActive())
 	{
 		controller._client.stop(controller._player, (err) =>
 		{
@@ -245,7 +254,7 @@ function closeClient(cb)
 	}
 }
 
-function isActive()
+function getIsActive()
 {
 	if(controller._player && controller._player.session)
 	{
@@ -255,6 +264,12 @@ function isActive()
 
 	debug(`Status check: player inactive`);
 	return false;
+}
+
+function onClose()
+{
+	debug(`Player close event`);
+	closeClient();
 }
 
 function onError(err)
