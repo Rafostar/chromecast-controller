@@ -1,6 +1,6 @@
 {
   "name": "chromecast-controller",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Easily cast to Chromecast and control playback",
   "main": "index.js",
   "scripts": {
