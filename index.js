@@ -78,7 +78,7 @@ var controller =
 				cb(err);
 			}
 			else
-				cb(status.level);
+				cb(null, status.level);
 		});
 	},
 
@@ -102,7 +102,7 @@ var controller =
 				cb(err);
 			}
 			else
-				cb(status.muted);
+				cb(null, status.muted);
 		});
 	},
 
@@ -117,7 +117,7 @@ var controller =
 	{
 		cb = cb || noop;
 
-		closeClient((err) =>
+		closeClient(err =>
 		{
 			if(err) debug(`Could not close client: ${err.message}`);
 
@@ -167,7 +167,7 @@ function _launch(media, opts, cb)
 
 	if(controller._client)
 	{
-		closeClient((err) =>
+		closeClient(err =>
 		{
 			if(err) cb(err);
 			else selectPlay();
@@ -233,6 +233,7 @@ function closeClient(cb)
 	var close = () =>
 	{
 		controller._client.close();
+		controller._client = null;
 		debug('Closed client');
 	}
 
@@ -249,7 +250,6 @@ function closeClient(cb)
 	else
 	{
 		close();
-
 		cb(null);
 	}
 }
