@@ -277,7 +277,7 @@ function closeClient(cb)
 {
 	cb = cb || noop;
 
-	debug(`Closing client...`);
+	debug('Closing client...');
 
 	controller._client.removeListener('error', onError);
 
@@ -312,11 +312,11 @@ function getIsActive()
 {
 	if(controller._player && controller._player.session)
 	{
-		debug(`Status check: player is active`);
+		debug('Player check: active');
 		return true;
 	}
 
-	debug(`Status check: player inactive`);
+	debug('Player check: inactive');
 	return false;
 }
 
@@ -335,7 +335,7 @@ function checkClientError()
 
 function onClose()
 {
-	debug(`Player close event`);
+	debug('Player close event');
 	closeClient();
 }
 
