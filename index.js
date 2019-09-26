@@ -31,12 +31,18 @@ var controller =
 	{
 		cb = cb || noop;
 
+		var cliErr = checkClientError();
+		if(cliErr) return cb(cliErr);
+
 		this._player.play(cb);
 	},
 
 	pause: function(cb)
 	{
 		cb = cb || noop;
+
+		var cliErr = checkClientError();
+		if(cliErr) return cb(cliErr);
 
 		this._player.pause(cb);
 	},
@@ -45,6 +51,9 @@ var controller =
 	{
 		cb = cb || noop;
 
+		var cliErr = checkClientError();
+		if(cliErr) return cb(cliErr);
+
 		this._player.stop(cb);
 	},
 
@@ -52,8 +61,15 @@ var controller =
 	{
 		cb = cb || noop;
 
-		if(isNaN(position)) cb(new Error('Position must be a number!'));
-		else this._player.seek(position, cb);
+		if(isNaN(position))
+			cb(new Error('Position must be a number!'));
+		else
+		{
+			var cliErr = checkClientError();
+			if(cliErr) return cb(cliErr);
+
+			this._player.seek(position, cb);
+		}
 	},
 
 	setVolume: function(volume, cb)
@@ -63,12 +79,20 @@ var controller =
 		if(volume < 0 || volume > 1)
 			cb(new Error('Volume must be a number between 0 and 1!'));
 		else
+		{
+			var cliErr = checkClientError();
+			if(cliErr) return cb(cliErr);
+
 			this._client.setVolume({ level: volume }, cb);
+		}
 	},
 
 	getVolume: function(cb)
 	{
 		cb = cb || noop;
+
+		var cliErr = checkClientError();
+		if(cliErr) return cb(cliErr);
 
 		this._client.getVolume((err, status) =>
 		{
@@ -85,6 +109,10 @@ var controller =
 	setMuted: function(value, cb)
 	{
 		cb = cb || noop;
+
+		var cliErr = checkClientError();
+		if(cliErr) return cb(cliErr);
+
 		value = (value === true || value === false) ? value : true;
 
 		this._client.setVolume({ muted: value }, cb);
@@ -93,6 +121,9 @@ var controller =
 	getMuted: function(cb)
 	{
 		cb = cb || noop;
+
+		var cliErr = checkClientError();
+		if(cliErr) return cb(cliErr);
 
 		this._client.getVolume((err, status) =>
 		{
@@ -110,12 +141,18 @@ var controller =
 	{
 		cb = cb || noop;
 
+		var cliErr = checkClientError();
+		if(cliErr) return cb(cliErr);
+
 		this._player.getStatus(cb);
 	},
 
 	close: function(cb)
 	{
 		cb = cb || noop;
+
+		var cliErr = checkClientError();
+		if(cliErr) return cb(cliErr);
 
 		closeClient(err =>
 		{
@@ -148,11 +185,13 @@ function startCast(media, opts, cb)
 				}
 			}
 
+			debug('Loaded new media in current session');
 			cb(err, status);
 		});
 	}
 	else
 	{
+		debug('Starting new cast session...');
 		_launch(media, opts, cb);
 	}
 }
@@ -264,6 +303,19 @@ function getIsActive()
 
 	debug(`Status check: player inactive`);
 	return false;
+}
+
+function checkClientError()
+{
+	var error = null;
+
+	if(!controller._client)
+	{
+		debug('Action on closed client!');
+		error = new Error('Client is closed!');
+	}
+
+	return error;
 }
 
 function onClose()
