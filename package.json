@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/Rafostar/chromecast-controller#readme",
   "dependencies": {
-    "castv2": "0.1.8",
     "castv2-client": "^1.2.0",
     "debug": "^4.1.1",
     "multicast-scanner": "^2.2.1"
