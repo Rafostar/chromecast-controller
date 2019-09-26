@@ -174,7 +174,7 @@ function startCast(media, opts, cb)
 		{
 			if(err)
 			{
-				debug(`Could not load media: ${err.message}`);
+				debug(`Could not load media in current session: ${err.message}`);
 
 				if(opts.retry)
 				{
@@ -184,8 +184,11 @@ function startCast(media, opts, cb)
 					return _launch(media, opts, cb);
 				}
 			}
+			else
+			{
+				debug('Loaded new media in current session');
+			}
 
-			debug('Loaded new media in current session');
 			cb(err, status);
 		});
 	}
