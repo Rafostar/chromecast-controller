@@ -203,8 +203,20 @@ function _launch(media, opts, cb)
 {
 	var selectPlay = () =>
 	{
-		if(opts.ip) _connectAndPlay(media, opts, cb);
-		else _scanAndPlay(media, opts, cb);
+		if(opts.ip)
+		{
+			debug(`Connecting to ${opts.ip}`);
+			_connectAndPlay(media, opts, cb);
+		}
+		else
+		{
+			if(opts.name)
+				debug(`Searching for device: ${opts.name}`);
+			else
+				debug('Searching for any device');
+
+			_scanAndPlay(media, opts, cb);
+		}
 	}
 
 	if(controller._client)
