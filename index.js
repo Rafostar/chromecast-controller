@@ -248,8 +248,18 @@ function _connectAndPlay(media, opts, cb)
 {
 	controller._client = new Client();
 
+	var connectTimeout = setTimeout(() =>
+	{
+		var error = new Error('Connection timeout!');
+
+		if(controller._client) closeClient(() => cb(error));
+		else cb(error);
+	}, 5000);
+
 	controller._client.connect(opts.ip, (err) =>
 	{
+		clearTimeout(connectTimeout);
+
 		if(err) return cb(err);
 
 		controller._client.launch(DefaultMediaReceiver, (err, player) =>
