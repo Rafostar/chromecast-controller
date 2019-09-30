@@ -239,6 +239,7 @@ function _scanAndPlay(media, opts, cb)
 	{
 		if(err) return cb(err);
 
+		debug(`Found device ip: ${device.ip}`);
 		opts.ip = device.ip;
 		_connectAndPlay(media, opts, cb);
 	});
