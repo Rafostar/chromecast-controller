@@ -26,7 +26,7 @@ chromecast.cast(media, (err) =>
 	}
 
 	console.log('Playing...');
-}
+});
 ```
 
 ## Donation
